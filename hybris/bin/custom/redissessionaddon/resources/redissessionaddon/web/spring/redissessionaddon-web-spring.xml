@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ [y] hybris Platform
+
+ Copyright (c) 2000-2016 SAP SE or an SAP affiliate company.
+ All rights reserved.
+
+ This software is the confidential and proprietary information of SAP
+ ("Confidential Information"). You shall not disclose such Confidential
+ Information and shall use it only in accordance with the terms of the
+ license agreement you entered into with SAP.
+-->
+
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:util="http://www.springframework.org/schema/util"
+	   xmlns="http://www.springframework.org/schema/beans"
+
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context.xsd
+           http://www.springframework.org/schema/util
+           http://www.springframework.org/schema/util/spring-util.xsd">
+
+	<context:annotation-config/>
+
+	<bean class="org.springframework.session.data.redis.config.annotation.web.http.RedisHttpSessionConfiguration"/>
+	<bean class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"/>
+
+	<alias name="springSessionStorefrontTenantDefaultFilterChainList" alias="storefrontTenantDefaultFilterChainList" />
+	<util:list id="springSessionStorefrontTenantDefaultFilterChainList">
+		<!-- generic platform filters -->
+		<ref bean="log4jFilter"/>
+
+		<!--Spring session filter -->
+		<ref bean="springSessionRepositoryFilter"/>
+
+		<ref bean="storefrontSessionFilter"/>
+		<ref bean="addOnDevelopmentFilter"/>
+
+		<!-- filter to log the current request -->
+		<ref bean="requestLoggerFilter"/>
+
+		<!-- filter to setup the cms integration -->
+		<ref bean="cmsSiteFilter"/>
+
+		<!-- filter to initialize the storefront -->
+		<ref bean="storefrontFilter"/>
+
+		<!-- filter to handle url encoding attributes -->
+		<ref bean="urlEncoderFilter"/>
+
+		<!-- filter to handle multipart file upload -->
+		<ref bean="fileUploadFilter"/>
+
+		<!-- Security -->
+		<ref bean="springSecurityFilterChain"/>
+
+		<!-- filter to log out guest user if he/she attempts to access a page outside of checkout flow -->
+		<ref bean="anonymousCheckoutFilter"/>
+
+		<!-- filter to restore items in cart -->
+		<ref bean="cartRestorationFilter"/>
+
+		<!-- filter to restore customer preferred location -->
+		<ref bean="customerLocationRestorationFilter"/>
+
+		<ref bean="addOnDevelopmentFilter"/>
+
+		<!-- filter to log the current request -->
+		<ref bean="requestLoggerFilter"/>
+
+		<!-- filter to setup the cms integration -->
+		<ref bean="cmsSiteFilter"/>
+
+		<!-- filter to initialize the storefront -->
+		<ref bean="storefrontFilter"/>
+
+		<!-- filter to handle url encoding attributes -->
+		<ref bean="urlEncoderFilter"/>
+
+		<!-- filter to handle multipart file upload -->
+		<ref bean="fileUploadFilter"/>
+
+		<!-- Security -->
+		<ref bean="springSecurityFilterChain"/>
+
+		<!-- filter to log out guest user if he/she attempts to access a page outside of checkout flow -->
+		<ref bean="anonymousCheckoutFilter"/>
+
+		<!-- filter to restore items in cart -->
+		<ref bean="cartRestorationFilter"/>
+
+		<!-- filter to restore customer preferred location -->
+		<ref bean="customerLocationRestorationFilter"/>
+	</util:list>
+
+	<alias name="springSessionIntegrationTenantFilterChainList" alias="integrationTenantFilterChainList" />
+	<util:list id="springSessionIntegrationTenantFilterChainList">
+		<!-- generic platform filters -->
+		<ref bean="springSessionRepositoryFilter"/>
+
+		<ref bean="storefrontSessionFilter"/>
+		<ref bean="addOnDevelopmentFilter"/>
+		<!-- filter to log the current request -->
+		<ref bean="requestLoggerFilter"/>
+	</util:list>
+
+	<alias name="enhancedJdkSerializationRedisSerializer" alias="springSessionDefaultRedisSerializer" />
+	<bean id="enhancedJdkSerializationRedisSerializer" class="com.epam.redissessionaddon.EnhancedJdkSerializationRedisSerializer"/>
+</beans>

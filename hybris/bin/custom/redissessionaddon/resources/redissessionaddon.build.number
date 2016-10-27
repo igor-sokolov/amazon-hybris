@@ -1,0 +1,11 @@
+#Ant properties
+#Fri Oct 07 23:08:18 CEST 2016
+builddate=20161007 2308
+description=redissessionaddon
+group.id=de.hybris.platform
+module.name=platform-module
+name=redissessionaddon
+releasedate=20160923 1339
+vendor=hybris
+version=6.2.0.0-SNAPSHOT
+version.api=6.2.0
