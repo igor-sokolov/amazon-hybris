@@ -1,118 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
- [y] hybris Platform
-
- Copyright (c) 2000-2016 SAP SE or an SAP affiliate company.
- All rights reserved.
-
- This software is the confidential and proprietary information of SAP
- ("Confidential Information"). You shall not disclose such Confidential
- Information and shall use it only in accordance with the terms of the
- license agreement you entered into with SAP.
--->
-
 <beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	   xmlns:context="http://www.springframework.org/schema/context"
-	   xmlns:util="http://www.springframework.org/schema/util"
-	   xmlns="http://www.springframework.org/schema/beans"
-	   xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns="http://www.springframework.org/schema/beans"
+       xmlns:p="http://www.springframework.org/schema/p"
 
-	   xsi:schemaLocation="http://www.springframework.org/schema/beans
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans.xsd
            http://www.springframework.org/schema/context
            http://www.springframework.org/schema/context/spring-context.xsd
            http://www.springframework.org/schema/util
            http://www.springframework.org/schema/util/spring-util.xsd">
 
-	<context:annotation-config/>
+    <context:annotation-config/>
 
-	<bean class="org.springframework.session.data.redis.config.annotation.web.http.RedisHttpSessionConfiguration"/>
-
+    <!-- Redis Connection factory -->
     <bean class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
           p:host-name="#{configurationService.configuration.getProperty('redissessionaddon.redisserver.host')}"
-          p:port="#{configurationService.configuration.getProperty('redissessionaddon.redisserver.port')}"/>
+          p:port="#{configurationService.configuration.getProperty('redissessionaddon.redisserver.port')}"
+          p:password="#{configurationService.configuration.getProperty('redissessionaddon.redisserver.password')}"
+          p:timeout="#{configurationService.configuration.getProperty('redissessionaddon.redisserver.timeout')}"
+    />
 
-    <!--TODO add a new filter container to combine springSessionRepositoryFilter and ootb storefrontSessionFilter-->
-    <!--in one bean, in this case we don't need to override the whole list but only one storefrontSessionFilter filter -->
-	<alias name="springSessionStorefrontTenantDefaultFilterChainList" alias="storefrontTenantDefaultFilterChainList" />
-	<util:list id="springSessionStorefrontTenantDefaultFilterChainList">
-		<!-- generic platform filters -->
-		<ref bean="log4jFilter"/>
+    <!-- Spring Session configuration for Redis presistance -->
+    <bean class="org.springframework.session.data.redis.config.annotation.web.http.RedisHttpSessionConfiguration"/>
 
-		<!--Spring session filter -->
-		<ref bean="springSessionRepositoryFilter"/>
+    <!-- Replace hybris storefrontSessionFilter with a couple of filters instead -->
+    <bean id="storefrontSessionFilter" class="org.springframework.web.filter.CompositeFilter">
+        <property name="filters">
+            <list>
+                <ref bean="springSessionRepositoryFilter"/>
+                <ref bean="hybrisSessionFilter"/>
+            </list>
+        </property>
+    </bean>
 
-		<ref bean="storefrontSessionFilter"/>
-		<ref bean="addOnDevelopmentFilter"/>
+    <bean id="hybrisSessionFilter" class="de.hybris.platform.servicelayer.web.SessionFilter">
+        <property name="sessionService" ref="sessionService"/>
+    </bean>
 
-		<!-- filter to log the current request -->
-		<ref bean="requestLoggerFilter"/>
-
-		<!-- filter to setup the cms integration -->
-		<ref bean="cmsSiteFilter"/>
-
-		<!-- filter to initialize the storefront -->
-		<ref bean="storefrontFilter"/>
-
-		<!-- filter to handle url encoding attributes -->
-		<ref bean="urlEncoderFilter"/>
-
-		<!-- filter to handle multipart file upload -->
-		<ref bean="fileUploadFilter"/>
-
-		<!-- Security -->
-		<ref bean="springSecurityFilterChain"/>
-
-		<!-- filter to log out guest user if he/she attempts to access a page outside of checkout flow -->
-		<ref bean="anonymousCheckoutFilter"/>
-
-		<!-- filter to restore items in cart -->
-		<ref bean="cartRestorationFilter"/>
-
-		<!-- filter to restore customer preferred location -->
-		<ref bean="customerLocationRestorationFilter"/>
-
-		<ref bean="addOnDevelopmentFilter"/>
-
-		<!-- filter to log the current request -->
-		<ref bean="requestLoggerFilter"/>
-
-		<!-- filter to setup the cms integration -->
-		<ref bean="cmsSiteFilter"/>
-
-		<!-- filter to initialize the storefront -->
-		<ref bean="storefrontFilter"/>
-
-		<!-- filter to handle url encoding attributes -->
-		<ref bean="urlEncoderFilter"/>
-
-		<!-- filter to handle multipart file upload -->
-		<ref bean="fileUploadFilter"/>
-
-		<!-- Security -->
-		<ref bean="springSecurityFilterChain"/>
-
-		<!-- filter to log out guest user if he/she attempts to access a page outside of checkout flow -->
-		<ref bean="anonymousCheckoutFilter"/>
-
-		<!-- filter to restore items in cart -->
-		<ref bean="cartRestorationFilter"/>
-
-		<!-- filter to restore customer preferred location -->
-		<ref bean="customerLocationRestorationFilter"/>
-	</util:list>
-
-	<alias name="springSessionIntegrationTenantFilterChainList" alias="integrationTenantFilterChainList" />
-	<util:list id="springSessionIntegrationTenantFilterChainList">
-		<!-- generic platform filters -->
-		<ref bean="springSessionRepositoryFilter"/>
-
-		<ref bean="storefrontSessionFilter"/>
-		<ref bean="addOnDevelopmentFilter"/>
-		<!-- filter to log the current request -->
-		<ref bean="requestLoggerFilter"/>
-	</util:list>
-
-	<alias name="enhancedJdkSerializationRedisSerializer" alias="springSessionDefaultRedisSerializer" />
-	<bean id="enhancedJdkSerializationRedisSerializer" class="com.epam.redissessionaddon.EnhancedJdkSerializationRedisSerializer"/>
+    <!-- Hybris classloader issue fix -->
+    <bean id="springSessionDefaultRedisSerializer"
+          class="org.springframework.data.redis.serializer.JdkSerializationRedisSerializer">
+        <constructor-arg value="#{T(java.lang.Thread).currentThread().getContextClassLoader()}"/>
+    </bean>
 </beans>

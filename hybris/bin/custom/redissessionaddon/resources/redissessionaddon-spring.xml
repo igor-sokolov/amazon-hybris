@@ -25,28 +25,7 @@
            
     <context:annotation-config/> 
 
-	<bean id="redissessionaddonCoreDataImportedEventListener" parent="abstractCoreDataImportedEventListener">
-		<property name="supportedChannels">
-			<list value-type="de.hybris.platform.commerceservices.enums.SiteChannel">
-				<value>B2C</value>
-				<!--
-								<value>B2B</value>
-				-->
-			</list>
-		</property>
-		<property name="addonExtensionMetadata">
-			<bean class="de.hybris.platform.addonsupport.data.AddonExtensionMetadata">
-				<property name="suffixChannel" value="false"/>
-				<property name="baseExtensionName" value="redissessionaddon"/>
-			</bean>
-		</property>
-	</bean>
-
-	<bean id="redissessionaddonSampleDataEventListener" parent="abstractGenericAddOnSampleDataEventListener"  >
-		<property name="extensionName" value="redissessionaddon" />
-	</bean>
-
-	<alias name="enhancedPromotionEngineService" alias="promotionEngineService"/>
-	<bean id="enhancedPromotionEngineService" parent="defaultPromotionEngineService" class="com.epam.redissessionaddon.EnhancedPromotionEngineService"/>
-
+    <alias name="enhancedPromotionEngineService" alias="promotionEngineService"/>
+    <bean id="enhancedPromotionEngineService" parent="defaultPromotionEngineService"
+        class="com.epam.redissessionaddon.EnhancedPromotionEngineService"/>
 </beans>
